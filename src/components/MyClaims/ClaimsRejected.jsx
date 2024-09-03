@@ -4,8 +4,8 @@ import { useLocation } from 'react-router-dom';
 import { ethers } from 'ethers';
 import { contractABI } from '../../constants/ABI';
 
-const contractAddress = '0x607cCF60493A51c61D86f4616E93014DB9e32b77';
-const url = 'https://api.studio.thegraph.com/query/87341/insurancetest/v0.0.4';
+const contractAddress = '0x954621368d89eb96fb5da8df0de5640a483c4391';
+const url = 'https://api.studio.thegraph.com/query/87341/insurancetest/v0.0.8';
 
 const ClaimsRejected = () => {
   const [myClaims, setMyClaims] = useState([]);
@@ -74,7 +74,7 @@ const ClaimsRejected = () => {
   }, [walletAddress]);
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container  p-4">
       <h1 className="text-3xl font-bold mb-8">Submitted Claims</h1>
       <ClaimList claims={myClaims} />
     </div>

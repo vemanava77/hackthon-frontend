@@ -2,9 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { gql, request } from 'graphql-request';
 import { ethers } from 'ethers';
 import { contractABI } from '../../constants/ABI';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import './ProviderClaims.css';  // Import custom CSS for the component
+import { convertoETH } from '../../constants/constants';
 
-const contractAddress = '0x607cCF60493A51c61D86f4616E93014DB9e32b77';
-const url = 'https://api.studio.thegraph.com/query/87341/insurancetest/v0.0.4';
+const contractAddress = '0x954621368d89eb96fb5da8df0de5640a483c4391';
+const url = 'https://api.studio.thegraph.com/query/87341/insurancetest/v0.0.8';
 
 const MyClaims = () => {
   const [claims, setClaims] = useState({
@@ -16,37 +20,30 @@ const MyClaims = () => {
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
   const [contract, setContract] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-
     const connectContract = async () => {
       try {
-        // Request account access if needed
         await window.ethereum.request({ method: 'eth_requestAccounts' });
 
-        // Create a provider and signer
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
-
-        // Create the contract instance
         const contract = new ethers.Contract(contractAddress, contractABI, signer);
 
         setContract(contract);
         setProvider(provider);
         setSigner(signer);
-        console.log(contract);
       } catch (error) {
         console.error(error);
-
       }
-    }
+    };
 
     connectContract();
-  }, [])
+  }, []);
 
   useEffect(() => {
     const fetchClaims = async () => {
-      // Define the GraphQL queries to fetch submitted, approved, and rejected claims
       const dynamicQuery = gql`
         {
           claimSubmitteds {
@@ -61,6 +58,7 @@ const MyClaims = () => {
             policyId
             claimId
             claimant
+            coverageAmount
           }
           claimRejecteds {
             id
@@ -88,72 +86,114 @@ const MyClaims = () => {
     fetchClaims();
   }, [walletAddress]);
 
-  const handleApprove = async (claimId) => {
+  const filteredClaims = () => {
+    const submitted = claims?.submitted.filter(
+      (item) =>
+        !claims?.approved.some((approvedItem) => approvedItem.claimId === item.claimId) &&
+        !claims?.rejected.some((rejectedItem) => rejectedItem.claimId === item.claimId)
+    );
+
+    return submitted;
+
+  };
+
+  const handleApprove = async (claimId, address) => {
     try {
+      setLoading(true);
       if (contract) {
-        const tx = await contract.approveClaim(claimId);
+        const tx = await contract.approveClaim(address, +claimId - 1);
         await tx.wait();
-        alert(`Claim ${claimId} approved successfully!`);
+        setLoading(false);
+        toast.success(`Claim ${claimId} approved successfully!`);
       }
     } catch (error) {
+      setLoading(false);
       console.error('Error approving claim:', error);
+      toast.error(`Failed to approve claim ${claimId}: ${error.message}`);
     }
   };
 
-  const handleReject = async (claimId) => {
+  const handleReject = async (claimId, address) => {
     try {
+      setLoading(true);
       if (contract) {
-        const tx = await contract.rejectClaim(claimId);
+        const tx = await contract.rejectClaim(address, +claimId - 1);
         await tx.wait();
-        alert(`Claim ${claimId} rejected successfully!`);
+        setLoading(false);
+        toast.success(`Claim ${claimId} rejected successfully!`);
       }
     } catch (error) {
+      setLoading(false);
       console.error('Error rejecting claim:', error);
+      toast.error(`Failed to reject claim ${claimId}: ${error.message}`);
     }
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4">Submitted Claims</h2>
-      <ClaimList claims={claims.submitted} onApprove={handleApprove} onReject={handleReject} showActions />
-      <h2 className="text-2xl font-bold mb-4">Approved Claims</h2>
-      <ClaimList claims={claims.approved} />
-      <h2 className="text-2xl font-bold mb-4">Rejected Claims</h2>
-      <ClaimList claims={claims.rejected} />
+    <div className="p-6 bg-gradient-to-r from-purple-500 to-indigo-600 min-h-screen flex flex-col items-center">
+      <h1 className="text-4xl font-bold text-white mb-10">Manage Claims</h1>
+      <h2 className="text-3xl font-semibold text-white mb-6">Submitted Claims</h2>
+      <ClaimList msg={"No claims ready for Approval/Rejection"} claims={filteredClaims()} onApprove={handleApprove} onReject={handleReject} showActions />
+      <h2 className="text-3xl font-semibold text-white mt-10 mb-6">Approved Claims</h2>
+      <ClaimList msg={"No Approved Claims"} claims={claims.approved} />
+      <h2 className="text-3xl font-semibold text-white mt-10 mb-6">Rejected Claims</h2>
+      <ClaimList msg={"No Rejected Claims"} claims={claims.rejected} />
+
+      {loading && (
+        <div className="loading-screen">
+          <div className="loading-spinner"></div>
+          <p className="loading-text">Processing Transaction...</p>
+        </div>
+      )}
+
+      <ToastContainer position="bottom-right" autoClose={3000} />
     </div>
   );
 };
 
-const ClaimList = ({ claims, onApprove, onReject, showActions }) => {
+const ClaimList = ({ msg, claims, onApprove, onReject, showActions }) => {
   return (
     <div className="flex flex-wrap justify-center">
-      {claims.map((claim) => (
-        <ClaimCard key={claim.claimId} claim={claim} onApprove={onApprove} onReject={onReject} showActions={showActions} />
-      ))}
+      {/* Show message if claims are available */}
+      {claims?.length > 0 ? (
+        <>
+          {claims.map((claim) => (
+            <ClaimCard
+              key={claim.claimId}
+              claim={claim}
+              onApprove={onApprove}
+              onReject={onReject}
+              showActions={showActions}
+            />
+          ))}
+        </>
+      ) : (
+        <h1 className="flex justify-center text-xl font-bold text-gray-300 mb-10">{msg}</h1>
+      )}
     </div>
   );
 };
 
 const ClaimCard = ({ claim, onApprove, onReject, showActions }) => {
   return (
-    <div className="max-w-sm rounded overflow-hidden shadow-lg bg-white m-4 p-4">
-      <div className="font-bold text-xl mb-2">
+    <div className="claim-card max-w-sm rounded-lg overflow-hidden shadow-lg bg-white m-4 p-6 transform hover:scale-105 transition-transform cursor-pointer">
+      <div className="font-bold text-2xl mb-2 text-indigo-700">
         Claim ID: {claim.claimId}
       </div>
-      <p className="text-gray-700 text-base">Policy ID: {claim.policyId}</p>
-      <p className="text-gray-700 text-base">Claimed by: {claim.claimant}</p>
-      <p className="text-gray-700 text-base">Coverage Amount: {claim.coverageAmount}</p>
+      <p className="text-gray-600 text-lg">Policy ID: {claim.policyId}</p>
+      <p className="text-gray-600 text-lg">Claimed by: {claim.claimant}</p>
+      <p className="text-gray-600 text-lg">Coverage Amount: {convertoETH(claim.coverageAmount)}</p>
       {showActions && (
-        <div className="flex justify-between mt-4">
+        <div className="flex justify-between mt-6">
           <button
-            onClick={() => onApprove(claim.claimId)}
-            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+            onClick={() => onApprove(claim.claimId, claim.claimant)}
+            className="action-button bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105"
           >
             Approve
           </button>
           <button
-            onClick={() => onReject(claim.claimId)}
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+            onClick={() => onReject(claim.claimId, claim.claimant)}
+            className="action-button bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105"
           >
             Reject
           </button>

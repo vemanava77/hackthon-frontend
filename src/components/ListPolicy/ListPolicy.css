@@ -1,0 +1,43 @@
+/* Custom CSS for ListPolicy component */
+
+.policy-card {
+    border-radius: 15px;
+    transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out;
+    background-color: #ffffff;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.policy-card:hover {
+    box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
+}
+
+.container {
+    padding: 20px;
+}
+
+.bg-gradient-to-r {
+    background: linear-gradient(to right, #3b82f6, #9333ea);
+}
+
+.text-white {
+    color: #fff;
+}
+
+.text-blue-700 {
+    color: #1e40af;
+}
+
+.buy-button {
+    background-color: #4a90e2;
+    color: white;
+    font-size: 16px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+}

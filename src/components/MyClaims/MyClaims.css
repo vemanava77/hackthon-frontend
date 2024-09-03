@@ -1,0 +1,92 @@
+/* Modal overlay styling */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Modal container styling */
+.modal-container {
+    background: white;
+    border-radius: 10px;
+    width: 400px;
+    max-width: 90%;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Slide-in animation */
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Modal header styling */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* Modal title styling */
+.modal-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #1a202c;
+}
+
+/* Close button styling */
+.close-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #4a5568;
+    cursor: pointer;
+}
+
+/* Claim card styling */
+.claim-card {
+    border-radius: 15px;
+    transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out;
+    background-color: #ffffff;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.claim-card:hover {
+    box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
+}
+
+/* Modal body styling */
+.modal-body {
+    font-size: 16px;
+    color: #2d3748;
+}
+
+.text-green-600 {
+    color: #38a169;
+    font-weight: 700;
+    /* background-color: #38a169; */
+}
+
+.text-red-600 {
+    color: #e53e3e;
+}

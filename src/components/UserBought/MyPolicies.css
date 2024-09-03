@@ -1,0 +1,21 @@
+/* Policy card styling */
+.policy-card {
+    border-radius: 15px;
+    transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out;
+    background-color: #ffffff;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.policy-card:hover {
+    box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
+}
+
+/* Claim button styling */
+.claim-button {
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.claim-button:hover {
+    transform: scale(1.05);
+}
