@@ -73,6 +73,9 @@ Download the Insurance.sol (solidity file ) and run deploy it using Truffle or H
 5. If you deploy your own contract you need to connect it to your own subgraph
 (we have already used our subgraph the API URl is present in the code )
 
+6. If you want to deploy your own subgraph you can find all the files here
+    [https://github.com/vemanava77/the-graph.git](https://github.com/vemanava77/the-graph.git)
+
 once everything is done you can start exploring the features by doing the transaction from your metamask wallet
 
 
